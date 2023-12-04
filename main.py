@@ -1,18 +1,21 @@
 from config import *
+from modules.player import Player
 from modules.levels import *
 from modules.surface_and_rect_control import get_surface_and_rect
 import json
 
-MUSIC_OFF = False
-
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+
 class Game():
+    # ───── PUNTUACIÓN TOTAL ───── #
+    total_points = 0
     def __init__(self):
         with open("data/levels.json", "r") as json_file:
             self.levels = json.load(json_file)
-            print(self.levels)
-        
-        self.music_off = False
+            # print(self.levels)
+
+        self.pause_music = False
+
         self.play, self.play_rect = get_surface_and_rect("assets/img/jugar.png", (450, 150))
         self.options, self.options_rect = get_surface_and_rect("assets/img/opciones.png", (450, 450))
         self.quit, self.quit_rect = get_surface_and_rect("assets/img/salir.png", (450, 600))
@@ -45,23 +48,43 @@ class Game():
         self.sound_on, self.sound_on_rect = get_surface_and_rect("assets/img/sonido_on.png", (450, 450))
         self.sound_off, self.sound_off_rect = get_surface_and_rect("assets/img/sonido_off.png", (450, 600))
 
+        # ───── RANKINGS ───── #
+        self.ranking_table, self.ranking_table_rect = get_surface_and_rect("assets/img/ranking_table.png", (100, 450))
+
+        pygame.font.init()
+        self.font = pygame.font.Font(None, 26)
+        
+        pygame.mixer.init()
+
     def reset_level(self, level_index):
         self.current_level_index = level_index
         self.current_level = Levels(self, **self.levels[self.current_level_index])
 
     def main_menu(self):
-        global MUSIC_OFF
-        clock = pygame.time.Clock()
-        running = True
+        try:
+            my_connect = sqlite3.connect("data/bd_segundo_parcial_programacion.db")
+            cursor = my_connect.cursor()
 
-        pygame.mixer.init()
-        if MUSIC_OFF == False:
+            # consulta del top 3
+            cursor.execute('SELECT nombre, points FROM ranking ORDER BY points DESC LIMIT 3')
+            self.top_names = cursor.fetchall()
+
+            my_connect.close()
+
+        except Exception as ex:
+            print(ex)
+            self.top_names = []  # Manejar el caso de error
+
+        if not self.pause_music:
             pygame.mixer.music.load("./assets/sound/ost.wav")
             pygame.mixer.music.set_volume(0.4) 
             # inicio de música
             pygame.mixer.music.play(-1) # -1 es para dejar en bucle infinito
         else:
             pygame.mixer.music.pause()
+
+        clock = pygame.time.Clock()
+        running = True
 
         while running:
             clock.tick(FPS)
@@ -84,6 +107,14 @@ class Game():
             screen.blit(self.options, self.options_rect)
             screen.blit(self.quit, self.quit_rect)
             screen.blit(self.player, self.player_rect)
+
+            screen.blit(self.ranking_table, self.ranking_table_rect)
+            y = 506
+            for i, (name, points) in enumerate(self.top_names):
+                text_surface = self.font.render(f"{name} - {points} puntos", True, BLACK)
+                screen.blit(text_surface, (150, y))
+                y+= 32
+
 
             if self.play_rect.collidepoint(mouse_x, mouse_y):
                 self.play.set_alpha(200)
@@ -128,9 +159,6 @@ class Game():
             screen.blit(self.info_left, self.info_left_rect)
             screen.blit(self.info_right, self.info_right_rect)
 
-            if self.current_level_index == 1:
-                print("OJO!")
-
             if self.level_1_rect.collidepoint(mouse_x, mouse_y):
                 self.level_1.set_alpha(200)
                 if pygame.mouse.get_pressed()[0]:
@@ -154,7 +182,6 @@ class Game():
             pygame.display.flip()
 
     def options_M(self):
-        global MUSIC_OFF
         clock = pygame.time.Clock()
         self.options_mode = True
 
@@ -175,6 +202,7 @@ class Game():
             
             screen.fill(WHITE)
 
+            screen.blit(self.selector_bg, self.selector_bg_rect)
             screen.blit(self.music_on, self.music_on_rect)
             screen.blit(self.music_off_m, self.music_off_rect_m)
             screen.blit(self.sound_on, self.sound_on_rect)
@@ -184,12 +212,12 @@ class Game():
                 self.music_on.set_alpha(200)
                 if pygame.mouse.get_pressed()[0]:
                     pygame.mixer.music.unpause()
-                    MUSIC_OFF = False
+                    self.pause_music = False
             elif self.music_off_rect_m.collidepoint(mouse_x, mouse_y):
                 self.music_off_m.set_alpha(200)
                 if pygame.mouse.get_pressed()[0]:
                     pygame.mixer.music.pause()
-                    MUSIC_OFF = True
+                    self.pause_music = True
             elif self.sound_on_rect.collidepoint(mouse_x, mouse_y):
                 self.sound_on.set_alpha(200)
                 if pygame.mouse.get_pressed()[0]:

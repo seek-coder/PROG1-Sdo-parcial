@@ -23,6 +23,11 @@ class Enemies(pygame.sprite.Sprite):
         self.animation_count = 0
         self.initial_y = y
 
+        self.sprite = pygame.Surface((width, height))
+
+        self.jump_timer = 0
+        self.jump_duration = 15
+
     def movement(self, left_limit: float = 0, right_limit: float = WIDTH):
         """Movimientos de la clase.
 
@@ -30,14 +35,25 @@ class Enemies(pygame.sprite.Sprite):
             left_limit (float, optional): Límite por izquierda
             right_limit (float, optional): Límite por derecha
         """
-        if self.direction == "right":
-            self.rect.x -= self.x_speed
-            if self.rect.x <= left_limit:
-                self.direction = "left"
-        else:
-            self.rect.x += self.x_speed
-            if self.rect.x >= right_limit:
-                self.direction = "right"
+        if self.x_speed > 0:
+            if self.direction == "right":
+                self.rect.x -= self.x_speed
+                if self.rect.x <= left_limit:
+                    self.direction = "left"
+            else:
+                self.rect.x += self.x_speed
+                if self.rect.x >= right_limit:
+                    self.direction = "right"
+        
+        if self.x_speed == -1:
+            if self.jump_timer > 0:
+                self.rect.y -= 12
+                self.jump_timer -= 1
+            else:
+                self.rect.y += 2
+                if self.rect.y >= self.initial_y:
+                    self.rect.y = self.initial_y
+                    self.jump_timer = self.jump_duration
 
     def update_sprite(self):
         sprite_sheet = "fox_walk"
@@ -52,8 +68,14 @@ class Enemies(pygame.sprite.Sprite):
 
     def draw(self, window):
         window.blit(self.sprite, (self.rect.x - 12, self.rect.y))
-        if self.x_speed == 2 or self.x_speed == 4:
+        if self.x_speed > 0 or self.x_speed == 4 or self.x_speed == 5:
             if self.rect.y < floor_inicial_y + 8:
                 self.rect.y += 6
 
+        if self.x_speed == -1 and self.jump_timer == 0:
+            self.rect.y += 2
 
+
+
+
+                

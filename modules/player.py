@@ -6,6 +6,7 @@ from config import *
 class Player(pygame.sprite.Sprite):
     def __init__(self, x: float, y: float, width: float, height: float, x_speed = 1, y_speed = 1):
         self.rect = pygame.Rect(x, y, width, height)
+        self.sprite = pygame.Surface((width, height))
         self.x_speed = x_speed
         self.y_speed = y_speed
         self.right = False
@@ -139,7 +140,7 @@ class Player(pygame.sprite.Sprite):
             
         return self.shoot_to_the_right_list, self.shoot_to_the_left_list
 
-    def collision(self, collider_list, trap_list, enemy_list, boss_list):
+    def collision(self, collider_list, trap_list, enemy_list, boss_list, sound_mode = True):
         self.gravity = 0.65
 
         # ───── HIT ───── #
@@ -157,7 +158,8 @@ class Player(pygame.sprite.Sprite):
                         self.hit = True
                         self.hit_timer = 0
                         self.time_since_hit = pygame.time.get_ticks()
-                        self.hit_wav.play()
+                        if sound_mode:
+                            self.hit_wav.play()
                         self.lives_count -= 1
             
             for trap in trap_list:
@@ -165,7 +167,8 @@ class Player(pygame.sprite.Sprite):
                     self.hit = True
                     self.hit_timer = 0
                     self.time_since_hit = pygame.time.get_ticks()
-                    self.hit_wav.play()
+                    if sound_mode:
+                        self.hit_wav.play()
                     self.lives_count -= 1
 
             for enemy in enemy_list:
@@ -173,10 +176,10 @@ class Player(pygame.sprite.Sprite):
                     self.hit = True
                     self.hit_timer = 0
                     self.time_since_hit = pygame.time.get_ticks()
-                    self.hit_wav.play()
+                    if sound_mode:
+                        self.hit_wav.play()
                     self.lives_count -= 1
 
-        
         for collider in collider_list:
             if self.rect.bottomleft == collider.topright:
                 self.jumping = True
@@ -200,7 +203,6 @@ class Player(pygame.sprite.Sprite):
                         self.rect.right = collider.left
                     if self.rect.x >= collider.x:
                         self.rect.left = collider.right
-
 
     def update_sprite(self):
         sprite_sheet = "player_idle"
@@ -237,6 +239,7 @@ class Player(pygame.sprite.Sprite):
         # pygame.draw.rect(window, GREEN, self.rect)
         window.blit(self.sprite, (self.rect.x, self.rect.y))
         window.blit(self.points_table, (self.points_table_rect.x + 50, self.points_table_rect.y + 30))
+        # window.blit(self.countdown_table, (self.countdown_table_rect.x + 350, self.countdown_table_rect.y + 30))
         for surface, rect in self.shoot_to_the_left_list:
                 window.blit(surface, rect)
                 rect.x -= 7
@@ -256,5 +259,4 @@ class Player(pygame.sprite.Sprite):
         
         self.points_count_text = self.font.render(f"{self.points_count:04d}", False, WHITE)
         window.blit(self.points_count_text, (self.points_table_rect.x + 134, self.points_table_rect.y + 66))
-        
 
