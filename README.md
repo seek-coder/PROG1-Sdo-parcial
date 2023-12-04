@@ -19,7 +19,7 @@ El presente proyecto integra los contenidos vistos en las materias de _Programac
 12) **Uso de PYGAME**: como una biblioteca de código abierto en Python que se utiliza para desarrollar juegos y aplicaciones multimedia.
 13) **Uso de CLASES**: una plantilla para la creación de objetos. Define un conjunto de atributos y métodos comunes a todos los objetos que se crean a partir de ella. Los objetos son instancias de una clase y heredan las características definidas en la clase.
 14) **SQLite**: uso de base de datos para guardar rankings
-15) 
+    
 ## II. DESCRIPCIÓN GENERAL DEL PROYECTO:
 Se trata este de un videojuego tipo arcade que cumple con las siguientes condiciones:
 Objetos del juego:
