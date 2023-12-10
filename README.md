@@ -56,7 +56,7 @@ Puntuación almacenada en base de datos de SQLite
 
 ## III. CONSIDERACIONES FINALES
 El videojuego es de mi autoría, pero la aplicación de conceptos se da en base a las clases de las materias anteriormente mencionadas gracias a los profesores de las materias de Programación I y Laboratorio I. Tanto el código, como los sprites (hechos con [Aseprite](https://www.aseprite.org/)) y los sonidos del juego (hechos con [FL Studio](https://www.image-line.com/)) son de producción propia. 
-El proyecto me tomó alrededor de cuarenta y ocho horas de trabajo comprendidos en un periódo de casi dos semanas.
+El proyecto me tomó alrededor de sesenta de trabajo comprendidos en un periódo de casi dos semanas y media.
 
 Se requiere de la instalación de [pygame](https://www.pygame.org/news) para probar el código.
 
